@@ -1,0 +1,68 @@
+name: Build and publish mobile release
+on:
+  push:
+    tags:
+     - '*'
+jobs:
+  build-ios:
+    runs-on: macos-12
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      - name: Build framework
+        run: cd ios_framework && ./build_ios_framework.sh --source-dir=$(dirname "$(realpath "$PWD")") --output_dir="$PWD/artifact" --name="pjsip-ios-${{github.ref_name}}"
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: ios-artifact
+          path: ./pjsip-ios-${{github.ref_name}}.zip
+
+  build-android:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    container: 
+      image: rinekri/pjsip-android-builder:latest  # TODO: replace with intermedia image when it will be uploaded
+      volumes:
+        - ${{ github.workspace }}/input:/home/tools/pjproject 
+        - ${{ github.workspace }}/output:/home/output/pjsip-build-output
+      options: --user root
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          path: input
+      - name: Build library
+        run: |
+          mkdir -p output
+          cd /home
+          ./build
+      - name: Create asset 
+        run: tar -czvf "pjsip-android-${{github.ref_name}}".tar.gz -C output .
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: android-artifact
+          path: ./pjsip-android-${{github.ref_name}}.tar.gz
+      
+  create-release:
+    needs: [build-ios, build-android]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Download all workflow artifacts
+        uses: actions/download-artifact@v2
+      - name: Create release
+        id: create_release
+        uses: ncipollo/release-action@v1
+        with:
+          name: Mobile release ${{ github.ref_name }}
+          artifacts: ./ios-artifact/pjsip-ios-${{github.ref_name}}.zip, ./android-artifact/pjsip-android-${{github.ref_name}}.tar.gz
+          draft: true
+          prerelease: false
+
+
+
