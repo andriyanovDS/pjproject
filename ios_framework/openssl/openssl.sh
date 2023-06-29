@@ -140,12 +140,8 @@ rm -rf "${OPENSSL_VERSION}"
 mkdir -p "${CURRENTPATH}/bin"
 mkdir -p "${CURRENTPATH}/build/lib"
 
-if [ ! -e ${OPENSSL_VERSION}.tar.gz ]; then
-    echo "Downloading ${OPENSSL_VERSION}.tar.gz"
-    curl -O -L -s https://www.openssl.org/source/${OPENSSL_VERSION}.tar.gz
-else
-    echo "Using ${OPENSSL_VERSION}.tar.gz"
-fi
+echo "Downloading ${OPENSSL_VERSION}.tar.gz"
+curl -O -L -s https://www.openssl.org/source/${OPENSSL_VERSION}.tar.gz
 
 echo "Unpacking OpenSSL"
 tar xfz "${OPENSSL_VERSION}.tar.gz"
