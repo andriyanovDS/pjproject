@@ -1,9 +1,11 @@
 name: Build and publish mobile release
-on:
-  workflow_dispatch
+on:  
+  push:
+    tags:
+      - '*'
 env:
-  android_artefact_name: pjsip-android-2.13.8
-  ios_artefact_name: pjsip-ios-2.13.8
+  android_artefact_name: pjsip-android-${{github.ref_name}}
+  ios_artefact_name: pjsip-ios-${{github.ref_name}}
 jobs:
   build-ios:
     runs-on: self-hosted
@@ -25,7 +27,7 @@ jobs:
     permissions:
       contents: write
     container: 
-      image: rinekri/pjsip-android-builder:latest  # TODO: replace with intermedia image when it will be uploaded
+      image: rinekri/pjsip-android-builder:latest
       volumes:
         - ${{ github.workspace }}/input:/home/tools/pjproject 
         - ${{ github.workspace }}/output:/home/output/pjsip-build-output
