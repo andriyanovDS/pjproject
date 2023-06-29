@@ -18,10 +18,10 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: ios-artifact
-          path: $PWD/artifact/${{env.ios_artefact_name}}.zip
+          path: ./ios_framework/artifact/${{env.ios_artefact_name}}.zip
 
   build-android:
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
     permissions:
       contents: write
     container: 
