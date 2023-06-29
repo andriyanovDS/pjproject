@@ -1,6 +1,9 @@
 name: Build and publish mobile release
 on:
   workflow_dispatch
+env:
+  android_artefact_name: pjsip-android-2.13.8
+  ios_artefact_name: pjsip-ios-2.13.8
 jobs:
   build-ios:
     runs-on: self-hosted
@@ -10,12 +13,12 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
       - name: Build framework
-        run: cd ios_framework && ./build_ios_framework.sh --source-dir=$(dirname "$(realpath "$PWD")") --output_dir="$PWD/artifact" --name="pjsip-ios-${{github.ref_name}}"
+        run: cd ios_framework && ./build_ios_framework.sh --source-dir=$(dirname "$(realpath "$PWD")") --output_dir="$PWD/artifact" --name="${{env.ios_artefact_name}}"
       - name: Upload artifacts
         uses: actions/upload-artifact@v2
         with:
           name: ios-artifact
-          path: ./pjsip-ios-${{github.ref_name}}.zip
+          path: $PWD/artifact/${{env.ios_artefact_name}}.zip
 
   build-android:
     runs-on: ubuntu-latest
@@ -38,12 +41,12 @@ jobs:
           cd /home
           ./build
       - name: Create asset 
-        run: tar -czvf "pjsip-android-${{github.ref_name}}".tar.gz -C output .
+        run: tar -czvf ${{env.android_artefact_name}}.tar.gz -C output .
       - name: Upload artifacts
         uses: actions/upload-artifact@v2
         with:
           name: android-artifact
-          path: ./pjsip-android-${{github.ref_name}}.tar.gz
+          path: ./${{env.android_artefact_name}}.tar.gz
       
   create-release:
     needs: [build-ios, build-android]
@@ -58,7 +61,7 @@ jobs:
         uses: ncipollo/release-action@v1
         with:
           name: Mobile release ${{ github.ref_name }}
-          artifacts: ./ios-artifact/pjsip-ios-${{github.ref_name}}.zip, ./android-artifact/pjsip-android-${{github.ref_name}}.tar.gz
+          artifacts: ./ios-artifact/${{env.ios_artefact_name}}.zip, ./android-artifact/${{env.android_artefact_name}}.tar.gz
           draft: true
           prerelease: false
 
