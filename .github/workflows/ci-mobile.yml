@@ -13,7 +13,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
       - name: Build framework
-        run: cd ios_framework && ./build_ios_framework.sh --source-dir=$(dirname "$(realpath "$PWD")") --output_dir="$PWD/artifact" --name="${{env.ios_artefact_name}}"
+        run: cd ios_framework && ./build_ios_framework.sh --source-dir=$(dirname "$(realpath "$PWD")") --output-dir="$PWD/artifact" --name="${{env.ios_artefact_name}}"
       - name: Upload artifacts
         uses: actions/upload-artifact@v2
         with:
